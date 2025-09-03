@@ -46,6 +46,9 @@ export function LoginForm() {
         <p className="text-gray-600 mt-2">
           {isSignUp ? 'Create your estimating account' : 'Sign in to your account'}
         </p>
+        <p className="text-xs text-blue-600 mt-1">
+          Sign-up mode: {isSignUp ? 'ON' : 'OFF'} | Magic link: {isMagicLink ? 'ON' : 'OFF'}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
