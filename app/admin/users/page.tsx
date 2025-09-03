@@ -52,8 +52,9 @@ export default function AdminUsersPage() {
 
   const updateUserRole = async (userId: string, newRole: 'ADMIN' | 'ESTIMATOR' | 'VIEWER') => {
     try {
-      // @ts-ignore - Bypass TypeScript strict mode for this update
-      const { error } = await supabase
+      // Use any type to bypass strict typing
+      const supabaseAny = supabase as any
+      const { error } = await supabaseAny
         .from('users')
         .update({ role: newRole })
         .eq('id', userId)
