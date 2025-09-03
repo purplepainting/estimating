@@ -54,7 +54,7 @@ export default function AdminUsersPage() {
     try {
       const { error } = await supabase
         .from('users')
-        .update({ role: newRole })
+        .update({ role: newRole } as any)
         .eq('id', userId)
 
       if (error) throw error
