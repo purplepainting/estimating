@@ -144,22 +144,25 @@ export function calculateQuantity(
 ): number {
   switch (formulaKey) {
     case 'walls_sqft':
-      if ('height' in dimensions) {
+      if ('width' in dimensions && 'height' in dimensions) {
+        // Interior dimensions
         return 2 * (dimensions.length + dimensions.width) * (dimensions.height || 8)
       } else if ('perimeter' in dimensions) {
+        // Exterior perimeter dimensions
         return dimensions.perimeter * dimensions.height
       } else {
+        // Elevation dimensions
         return dimensions.length * dimensions.height
       }
     
     case 'ceil_sqft':
-      if ('height' in dimensions) {
+      if ('width' in dimensions) {
         return dimensions.length * dimensions.width
       }
       return 0
     
     case 'base_lnft':
-      if ('height' in dimensions) {
+      if ('width' in dimensions) {
         return 2 * (dimensions.length + dimensions.width)
       }
       return 0
@@ -179,16 +182,16 @@ export function calculateQuantity(
     case 'fascia_lnft':
       if ('perimeter' in dimensions) {
         return dimensions.perimeter
-      } else if ('length' in dimensions) {
+      } else {
         return dimensions.length
       }
-      return 0
     
     case 'elevation_walls':
-      if ('height' in dimensions && dimensions.height) {
+      if ('perimeter' in dimensions) {
+        return dimensions.perimeter * dimensions.height
+      } else {
         return dimensions.length * dimensions.height
       }
-      return dimensions.length * 8 // Default height
     
     case 'manual':
     default:
