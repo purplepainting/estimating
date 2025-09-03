@@ -30,7 +30,7 @@ export const getUserRole = async () => {
     .single()
   
   if (error) throw error
-  return data?.role
+  return data ? data.role : null
 }
 
 export const isAdmin = async () => {
