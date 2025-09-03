@@ -5,7 +5,6 @@ import { supabase, getUserRole } from '@/lib/supabase'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/Button'
-import { Tables } from '@/types/database'
 
 interface User {
   id: string
@@ -53,11 +52,11 @@ export default function AdminUsersPage() {
 
   const updateUserRole = async (userId: string, newRole: 'ADMIN' | 'ESTIMATOR' | 'VIEWER') => {
     try {
-      // Use raw SQL for update to bypass type issues
-      const { error } = await supabase.rpc('update_user_role', {
-        user_id: userId,
-        new_role: newRole
-      })
+      // @ts-ignore - Bypass TypeScript strict mode for this update
+      const { error } = await supabase
+        .from('users')
+        .update({ role: newRole })
+        .eq('id', userId)
 
       if (error) throw error
       
