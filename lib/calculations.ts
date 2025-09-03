@@ -152,7 +152,7 @@ export function calculateQuantity(
         return dimensions.perimeter * dimensions.height
       } else {
         // Elevation dimensions
-        return dimensions.length * dimensions.height
+        return dimensions.length * (dimensions.height || 8)
       }
     
     case 'ceil_sqft':
@@ -190,7 +190,7 @@ export function calculateQuantity(
       if ('perimeter' in dimensions) {
         return dimensions.perimeter * dimensions.height
       } else {
-        return dimensions.length * dimensions.height
+        return dimensions.length * (dimensions.height || 8)
       }
     
     case 'manual':
