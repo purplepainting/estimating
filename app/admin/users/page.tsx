@@ -5,6 +5,7 @@ import { supabase, getUserRole } from '@/lib/supabase'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/Button'
+import { Tables } from '@/types/database'
 
 interface User {
   id: string
@@ -52,9 +53,10 @@ export default function AdminUsersPage() {
 
   const updateUserRole = async (userId: string, newRole: 'ADMIN' | 'ESTIMATOR' | 'VIEWER') => {
     try {
+      const updateData: Partial<Tables<'users'>> = { role: newRole }
       const { error } = await supabase
         .from('users')
-        .update({ role: newRole } as any)
+        .update(updateData)
         .eq('id', userId)
 
       if (error) throw error
