@@ -53,11 +53,11 @@ export default function AdminUsersPage() {
 
   const updateUserRole = async (userId: string, newRole: 'ADMIN' | 'ESTIMATOR' | 'VIEWER') => {
     try {
-      const updateData: Partial<Tables<'users'>> = { role: newRole }
-      const { error } = await supabase
-        .from('users')
-        .update(updateData)
-        .eq('id', userId)
+      // Use raw SQL for update to bypass type issues
+      const { error } = await supabase.rpc('update_user_role', {
+        user_id: userId,
+        new_role: newRole
+      })
 
       if (error) throw error
       
