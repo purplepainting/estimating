@@ -19,7 +19,7 @@ export const getCurrentUser = async () => {
   return user
 }
 
-export const getUserRole = async (): Promise<string | null> => {
+export const getUserRole = async () => {
   const user = await getCurrentUser()
   if (!user) return null
   
@@ -29,11 +29,8 @@ export const getUserRole = async (): Promise<string | null> => {
     .eq('id', user.id)
     .single()
   
-  if (error) {
-    console.error('Error fetching user role:', error)
-    return null
-  }
-  return (data as any)?.role || null
+  if (error) throw error
+  return data?.role
 }
 
 export const isAdmin = async () => {

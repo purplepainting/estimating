@@ -1,37 +1,10 @@
 'use client'
 
-import { useAuth } from '@/components/auth/AuthProvider'
 import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { getUserRole } from '@/lib/supabase'
 
 export function Navbar() {
-  const { user, signOut } = useAuth()
-  const [userRole, setUserRole] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      if (user) {
-        try {
-          const role = await getUserRole()
-          setUserRole(role)
-        } catch (error) {
-          console.error('Error fetching user role:', error)
-        }
-      }
-      setIsLoading(false)
-    }
-
-    fetchUserRole()
-  }, [user])
-
-  if (!user) return null
-
-  const isAdmin = userRole === 'ADMIN'
-  const isEstimator = userRole === 'ADMIN' || userRole === 'ESTIMATOR'
-
+  // Show all navigation without authentication checks for testing
   return (
     <nav className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,69 +16,48 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* Navigation Links */}
+            {/* Navigation Links - All accessible for testing */}
             <Link 
-              href="/dashboard" 
+              href="/" 
               className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               Dashboard
             </Link>
 
-            {isEstimator && (
-              <>
-                <Link 
-                  href="/clients" 
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Clients
-                </Link>
-                <Link 
-                  href="/estimates" 
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Estimates
-                </Link>
-              </>
-            )}
+            <Link 
+              href="/clients" 
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Clients
+            </Link>
+            <Link 
+              href="/estimates" 
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Estimates
+            </Link>
 
-            {isAdmin && (
-              <>
-                <Link 
-                  href="/admin/users" 
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Users
-                </Link>
-                <Link 
-                  href="/admin/pricing" 
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Pricing
-                </Link>
-              </>
-            )}
+            <Link 
+              href="/admin/users" 
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Users
+            </Link>
+            <Link 
+              href="/admin/pricing" 
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Pricing
+            </Link>
 
-            {/* User Info */}
+            {/* User Info - Testing mode */}
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">
-                {user.email}
+                test@example.com
               </span>
-              {!isLoading && (
-                <span className={`px-2 py-1 text-xs rounded-full ${
-                  userRole === 'ADMIN' ? 'bg-red-100 text-red-800' :
-                  userRole === 'ESTIMATOR' ? 'bg-blue-100 text-blue-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {userRole}
-                </span>
-              )}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => signOut()}
-              >
-                Sign Out
-              </Button>
+              <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                TESTING
+              </span>
             </div>
           </div>
         </div>
@@ -113,3 +65,4 @@ export function Navbar() {
     </nav>
   )
 }
+

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/components/auth/AuthProvider'
 import { Navbar } from '@/components/layout/Navbar'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -22,7 +21,6 @@ interface Client {
 }
 
 export default function ClientsPage() {
-  const { user } = useAuth()
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -39,10 +37,9 @@ export default function ClientsPage() {
   })
 
   useEffect(() => {
-    if (user) {
-      fetchClients()
-    }
-  }, [user])
+    // Load data directly for testing
+    fetchClients()
+  }, [])
 
   const fetchClients = async () => {
     try {
@@ -87,10 +84,6 @@ export default function ClientsPage() {
       console.error('Error adding client:', error)
       alert('Error adding client')
     }
-  }
-
-  if (!user) {
-    return <div>Please log in</div>
   }
 
   if (loading) {
@@ -272,3 +265,4 @@ export default function ClientsPage() {
     </div>
   )
 }
+

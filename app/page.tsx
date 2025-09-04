@@ -1,32 +1,9 @@
 'use client'
 
-import { useAuth } from '@/components/auth/AuthProvider'
-import { LoginForm } from '@/components/auth/LoginForm'
 import { Navbar } from '@/components/layout/Navbar'
 
 export default function HomePage() {
-  const { user, loading } = useAuth()
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoginForm />
-      </div>
-    )
-  }
-
-  // User is logged in, show dashboard
+  // Show dashboard directly without authentication
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -74,7 +51,7 @@ export default function HomePage() {
             
             <div className="mt-6">
               <p className="text-sm text-gray-500">
-                Logged in as: {user.email}
+                Testing mode - Authentication disabled
               </p>
             </div>
           </div>

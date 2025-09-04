@@ -1,3 +1,7 @@
+// TEMPORARILY DISABLED FOR TESTING
+// Login form has been removed to allow testing without authentication
+
+/*
 'use client'
 
 import { useState } from 'react'
@@ -126,3 +130,4 @@ export function LoginForm() {
     </div>
   )
 }
+*/

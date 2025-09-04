@@ -1,3 +1,7 @@
+// TEMPORARILY DISABLED FOR TESTING
+// Authentication has been removed to allow testing without login
+
+/*
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -93,3 +97,4 @@ export function useAuth() {
   }
   return context
 }
+*/
