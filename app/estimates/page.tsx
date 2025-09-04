@@ -39,6 +39,27 @@ export default function EstimatesPage() {
     }
   }
 
+  const deleteEstimate = async (id: number, contactName: string) => {
+    if (!confirm(`Are you sure you want to delete the estimate for ${contactName}? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('estimates')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      // Remove from local state
+      setEstimates(estimates.filter(est => est.id !== id))
+    } catch (error) {
+      console.error('Error deleting estimate:', error)
+      alert('Error deleting estimate. Please try again.')
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     const styles = {
       draft: 'bg-gray-100 text-gray-800',
@@ -145,7 +166,7 @@ export default function EstimatesPage() {
                         Edit
                       </Link>
                       <button 
-                        onClick={() => {/* TODO: Delete */}}
+                        onClick={() => deleteEstimate(estimate.id, `${estimate.contact_first} ${estimate.contact_last || ''}`)}
                         className="text-red-600 hover:text-red-900"
                       >
                         Delete

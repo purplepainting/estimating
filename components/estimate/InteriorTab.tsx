@@ -73,6 +73,7 @@ export default function InteriorTab({
   })
   const [modifiers, setModifiers] = useState<Modifier[]>([])
   const [mainModifierPct, setMainModifierPct] = useState<number>(0)
+  const [editingModifiers, setEditingModifiers] = useState<number | null>(null)
 
   const fetchModifiers = async () => {
     const { data, error } = await supabase
@@ -211,6 +212,24 @@ export default function InteriorTab({
       ))
     } catch (error) {
       console.error('Error updating quantity:', error)
+    }
+  }
+
+  const updateLineModifiers = async (lineId: number, modifierIds: number[]) => {
+    try {
+      const { error } = await supabase
+        .from('estimate_lines')
+        .update({ selected_modifier_ids: modifierIds })
+        .eq('id', lineId)
+
+      if (error) throw error
+
+      setEstimateLines(estimateLines.map(line => 
+        line.id === lineId ? { ...line, selected_modifier_ids: modifierIds } : line
+      ))
+      setEditingModifiers(null)
+    } catch (error) {
+      console.error('Error updating modifiers:', error)
     }
   }
 
@@ -422,12 +441,20 @@ export default function InteriorTab({
                               </td>
                               <td className="px-4 py-2 text-sm font-medium">${lineTotal.toFixed(2)}</td>
                               <td className="px-4 py-2 text-sm">
-                                <button
-                                  onClick={() => deleteLine(line.id)}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  Delete
-                                </button>
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() => setEditingModifiers(line.id)}
+                                    className="text-blue-600 hover:text-blue-900"
+                                  >
+                                    Edit Modifiers
+                                  </button>
+                                  <button
+                                    onClick={() => deleteLine(line.id)}
+                                    className="text-red-600 hover:text-red-900"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           )
@@ -435,6 +462,16 @@ export default function InteriorTab({
                       </tbody>
                     </table>
                   </div>
+                )}
+
+                {/* Edit Modifiers Modal */}
+                {editingModifiers && (
+                  <EditModifiersModal
+                    line={estimateLines.find(l => l.id === editingModifiers)!}
+                    modifiers={modifiers}
+                    onSave={(modifierIds) => updateLineModifiers(editingModifiers, modifierIds)}
+                    onCancel={() => setEditingModifiers(null)}
+                  />
                 )}
               </div>
             )
@@ -542,6 +579,63 @@ function AddItemModal({ priceItems, modifiers, onAdd, onCancel }: {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+// Edit Modifiers Modal Component
+function EditModifiersModal({ line, modifiers, onSave, onCancel }: {
+  line: EstimateLine
+  modifiers: Modifier[]
+  onSave: (modifierIds: number[]) => void
+  onCancel: () => void
+}) {
+  const [selectedModifiers, setSelectedModifiers] = useState<number[]>(line.selected_modifier_ids)
+
+  const toggleModifier = (modifierId: number) => {
+    setSelectedModifiers(prev => 
+      prev.includes(modifierId)
+        ? prev.filter(id => id !== modifierId)
+        : [...prev, modifierId]
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+        <h3 className="text-lg font-medium mb-4">Edit Modifiers for {line.snapshot_name}</h3>
+        
+        <div className="space-y-3 mb-6">
+          {modifiers.map(modifier => (
+            <label key={modifier.id} className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                checked={selectedModifiers.includes(modifier.id)}
+                onChange={() => toggleModifier(modifier.id)}
+                className="rounded border-gray-300"
+              />
+              <span className="text-sm">
+                {modifier.label} ({modifier.pct > 0 ? '+' : ''}{(modifier.pct * 100).toFixed(0)}%)
+              </span>
+            </label>
+          ))}
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => onSave(selectedModifiers)}
+            className="btn-primary"
+          >
+            Save Changes
+          </button>
+          <button
+            onClick={onCancel}
+            className="btn-secondary"
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   )
