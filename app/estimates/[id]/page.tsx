@@ -5,6 +5,10 @@ import { supabase } from '@/lib/supabase'
 import { useParams } from 'next/navigation'
 import InfoTab from '@/components/estimate/InfoTab'
 import InteriorTab from '@/components/estimate/InteriorTab'
+import ExteriorTab from '@/components/estimate/ExteriorTab'
+import CabinetsTab from '@/components/estimate/CabinetsTab'
+import PricingTab from '@/components/estimate/PricingTab'
+import ProposalTab from '@/components/estimate/ProposalTab'
 
 // Types
 interface Estimate {
@@ -313,21 +317,4 @@ export default function EstimateEditorPage() {
       </div>
     </div>
   )
-}
-
-// Placeholder components for remaining tabs
-function ExteriorTab({ exteriorMode, setExteriorMode, exteriorMeasure, setExteriorMeasure, elevations, setElevations, estimateLines, setEstimateLines, priceItems, estimateId }: any) {
-  return <div className="card">Exterior tab content will go here</div>
-}
-
-function CabinetsTab({ cabinetGroups, setCabinetGroups, estimateLines, setEstimateLines, priceItems, estimateId }: any) {
-  return <div className="card">Cabinets tab content will go here</div>
-}
-
-function PricingTab({ estimateLines, areas, elevations, cabinetGroups, exteriorMeasure }: any) {
-  return <div className="card">Pricing tab content will go here</div>
-}
-
-function ProposalTab({ estimate, estimateLines, areas, elevations, cabinetGroups }: any) {
-  return <div className="card">Proposal tab content will go here</div>
 }
