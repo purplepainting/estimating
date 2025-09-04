@@ -89,6 +89,10 @@ export default function PricingTab({
     }
   }
 
+  useEffect(() => {
+    fetchModifiers()
+  }, [])
+
   // Calculate totals by section
   const getSectionLines = (sectionType: 'interior' | 'exterior' | 'cabinets') => {
     return estimateLines.filter(line => {

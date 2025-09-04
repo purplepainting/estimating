@@ -112,6 +112,10 @@ export default function ProposalTab({
     }
   }
 
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   const generateSOW = () => {
     let sow = `SCOPE OF WORK - PAINTING ESTIMATE\n\n`
     sow += `Client: ${estimate.contact_first} ${estimate.contact_last || ''}\n`
