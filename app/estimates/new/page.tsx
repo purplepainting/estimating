@@ -25,12 +25,21 @@ export default function NewEstimatePage() {
     setLoading(true)
 
     try {
-      // Prepare form data with proper date format
+      // Prepare form data - convert empty strings to null for optional fields
       const submitData = {
-        ...formData,
-        // Convert date to YYYY-MM-DD format if provided
+        contact_first: formData.contact_first, // Required field
+        contact_last: formData.contact_last || null,
+        phone: formData.phone || null,
+        email: formData.email || null,
+        address1: formData.address1 || null,
+        address2: formData.address2 || null,
+        city: formData.city || null,
+        state: formData.state || null,
+        postal: formData.postal || null,
         scheduled_date: formData.scheduled_date || null
       }
+
+      console.log('Submitting data:', submitData)
 
       const { data, error } = await supabase
         .from('estimates')
