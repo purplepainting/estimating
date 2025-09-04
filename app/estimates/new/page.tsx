@@ -25,9 +25,16 @@ export default function NewEstimatePage() {
     setLoading(true)
 
     try {
+      // Prepare form data with proper date format
+      const submitData = {
+        ...formData,
+        // Convert date to YYYY-MM-DD format if provided
+        scheduled_date: formData.scheduled_date || null
+      }
+
       const { data, error } = await supabase
         .from('estimates')
-        .insert([formData])
+        .insert([submitData])
         .select()
         .single()
 
@@ -37,7 +44,9 @@ export default function NewEstimatePage() {
       router.push(`/estimates/${data.id}`)
     } catch (error) {
       console.error('Error creating estimate:', error)
-      alert('Error creating estimate')
+      // Show detailed error message
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      alert(`Error creating estimate: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
