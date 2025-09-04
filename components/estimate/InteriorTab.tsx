@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getQuantityForItem, calculateLineTotal } from '@/lib/calculations'
 
@@ -74,9 +74,9 @@ export default function InteriorTab({
   const [modifiers, setModifiers] = useState<Modifier[]>([])
 
   // Fetch modifiers when component mounts
-  useState(() => {
+  useEffect(() => {
     fetchModifiers()
-  })
+  }, [])
 
   const fetchModifiers = async () => {
     const { data, error } = await supabase

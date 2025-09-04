@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { getQuantityForItem, calculateLineTotal } from '@/lib/calculations'
 
@@ -97,9 +97,9 @@ export default function ExteriorTab({
     fascia_ln_ft: 0
   })
 
-  useState(() => {
+  useEffect(() => {
     fetchModifiers()
-  })
+  }, [])
 
   const fetchModifiers = async () => {
     const { data, error } = await supabase

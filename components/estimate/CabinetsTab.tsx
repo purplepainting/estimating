@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { calculateLineTotal } from '@/lib/calculations'
 
@@ -65,9 +65,9 @@ export default function CabinetsTab({
   const [newGroup, setNewGroup] = useState({ name: '' })
   const [modifiers, setModifiers] = useState<Modifier[]>([])
 
-  useState(() => {
+  useEffect(() => {
     fetchModifiers()
-  })
+  }, [])
 
   const fetchModifiers = async () => {
     const { data, error } = await supabase
