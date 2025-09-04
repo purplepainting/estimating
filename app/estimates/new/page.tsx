@@ -1,12 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+
+interface MainModifier {
+  id: number
+  name: string
+  pct: number
+  enabled: boolean
+  sort_order: number
+}
 
 export default function NewEstimatePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [mainModifiers, setMainModifiers] = useState<MainModifier[]>([])
   const [formData, setFormData] = useState({
     contact_first: '',
     contact_last: '',
@@ -17,8 +26,34 @@ export default function NewEstimatePage() {
     city: '',
     state: '',
     postal: '',
-    scheduled_date: ''
+    scheduled_date: '',
+    main_modifier_id: ''
   })
+
+  useEffect(() => {
+    fetchMainModifiers()
+  }, [])
+
+  const fetchMainModifiers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('main_modifiers')
+        .select('*')
+        .eq('enabled', true)
+        .order('sort_order', { ascending: true })
+
+      if (!error && data) {
+        setMainModifiers(data)
+        // Set Residential as default
+        const residential = data.find(mod => mod.name === 'Residential')
+        if (residential) {
+          setFormData(prev => ({ ...prev, main_modifier_id: residential.id.toString() }))
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching main modifiers:', error)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,7 +71,8 @@ export default function NewEstimatePage() {
         city: formData.city || null,
         state: formData.state || null,
         postal: formData.postal || null,
-        scheduled_date: formData.scheduled_date || null
+        scheduled_date: formData.scheduled_date || null,
+        main_modifier_id: formData.main_modifier_id ? parseInt(formData.main_modifier_id) : null
       }
 
       console.log('Submitting data:', submitData)
@@ -193,6 +229,28 @@ export default function NewEstimatePage() {
             value={formData.scheduled_date}
             onChange={(e) => handleChange('scheduled_date', e.target.value)}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Business Type *
+          </label>
+          <select
+            className="input"
+            value={formData.main_modifier_id}
+            onChange={(e) => handleChange('main_modifier_id', e.target.value)}
+            required
+          >
+            <option value="">Select business type...</option>
+            {mainModifiers.map(modifier => (
+              <option key={modifier.id} value={modifier.id}>
+                {modifier.name} ({modifier.pct >= 0 ? '+' : ''}{(modifier.pct * 100).toFixed(1)}%)
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-gray-500 mt-1">
+            This determines the pricing level for the entire estimate
+          </p>
         </div>
 
         <div className="flex gap-4">

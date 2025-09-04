@@ -83,6 +83,7 @@ export default function ExteriorTab({
   const [showAddElevation, setShowAddElevation] = useState(false)
   const [showAddItem, setShowAddItem] = useState<'perimeter' | number | null>(null)
   const [modifiers, setModifiers] = useState<Modifier[]>([])
+  const [mainModifierPct, setMainModifierPct] = useState<number>(0)
   const [perimeterForm, setPerimeterForm] = useState({
     perimeter_ln_ft: exteriorMeasure?.perimeter_ln_ft || 0,
     wall_height_ft: exteriorMeasure?.wall_height_ft || 0,
@@ -108,7 +109,32 @@ export default function ExteriorTab({
 
   useEffect(() => {
     fetchModifiers()
-  }, [])
+    fetchMainModifier()
+  }, [estimateId])
+
+  const fetchMainModifier = async () => {
+    try {
+      const { data: estimateData } = await supabase
+        .from('estimates')
+        .select('main_modifier_id')
+        .eq('id', estimateId)
+        .single()
+
+      if (estimateData?.main_modifier_id) {
+        const { data: mainModifierData } = await supabase
+          .from('main_modifiers')
+          .select('pct')
+          .eq('id', estimateData.main_modifier_id)
+          .single()
+        
+        if (mainModifierData) {
+          setMainModifierPct(mainModifierData.pct)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching main modifier:', error)
+    }
+  }
 
   const savePerimeterMeasure = async () => {
     try {

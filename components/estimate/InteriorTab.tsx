@@ -72,6 +72,7 @@ export default function InteriorTab({
     height_ft: 8
   })
   const [modifiers, setModifiers] = useState<Modifier[]>([])
+  const [mainModifierPct, setMainModifierPct] = useState<number>(0)
 
   const fetchModifiers = async () => {
     const { data, error } = await supabase
@@ -85,7 +86,32 @@ export default function InteriorTab({
   // Fetch modifiers when component mounts
   useEffect(() => {
     fetchModifiers()
-  }, [])
+    fetchMainModifier()
+  }, [estimateId])
+
+  const fetchMainModifier = async () => {
+    try {
+      const { data: estimateData } = await supabase
+        .from('estimates')
+        .select('main_modifier_id')
+        .eq('id', estimateId)
+        .single()
+
+      if (estimateData?.main_modifier_id) {
+        const { data: mainModifierData } = await supabase
+          .from('main_modifiers')
+          .select('pct')
+          .eq('id', estimateData.main_modifier_id)
+          .single()
+        
+        if (mainModifierData) {
+          setMainModifierPct(mainModifierData.pct)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching main modifier:', error)
+    }
+  }
 
   const handleAddArea = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -139,6 +165,9 @@ export default function InteriorTab({
         { area }
       )
 
+      // Apply main modifier to the rate silently
+      const adjustedRate = priceItem.rate * (1 + mainModifierPct)
+
       const newLine = {
         estimate_id: estimateId,
         area_id: areaId,
@@ -147,7 +176,7 @@ export default function InteriorTab({
         snapshot_category: priceItem.category,
         snapshot_substrate: priceItem.substrate,
         snapshot_uom: priceItem.uom,
-        snapshot_rate: priceItem.rate,
+        snapshot_rate: adjustedRate,
         qty: calculatedQty,
         selected_modifier_ids: modifierIds
       }

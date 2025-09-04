@@ -22,13 +22,24 @@ interface Modifier {
   pct: number
 }
 
+interface MainModifier {
+  id: number
+  name: string
+  pct: number
+  enabled: boolean
+  sort_order: number
+}
+
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState<'items' | 'modifiers'>('items')
+  const [activeTab, setActiveTab] = useState<'items' | 'modifiers' | 'main-modifiers'>('items')
   const [priceItems, setPriceItems] = useState<PriceItem[]>([])
   const [modifiers, setModifiers] = useState<Modifier[]>([])
+  const [mainModifiers, setMainModifiers] = useState<MainModifier[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddItemForm, setShowAddItemForm] = useState(false)
   const [showAddModifierForm, setShowAddModifierForm] = useState(false)
+  const [editingMainModifier, setEditingMainModifier] = useState<number | null>(null)
+  const [editingValue, setEditingValue] = useState<string>('')
 
   const [newItem, setNewItem] = useState({
     name: '',
@@ -53,7 +64,7 @@ export default function PricingPage() {
 
   const fetchData = async () => {
     try {
-      await Promise.all([fetchPriceItems(), fetchModifiers()])
+      await Promise.all([fetchPriceItems(), fetchModifiers(), fetchMainModifiers()])
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -79,6 +90,16 @@ export default function PricingPage() {
       .order('label', { ascending: true })
 
     if (!error) setModifiers(data || [])
+  }
+
+  const fetchMainModifiers = async () => {
+    const { data, error } = await supabase
+      .from('main_modifiers')
+      .select('*')
+      .eq('enabled', true)
+      .order('sort_order', { ascending: true })
+
+    if (!error) setMainModifiers(data || [])
   }
 
   const handleAddItem = async (e: React.FormEvent) => {
@@ -131,6 +152,26 @@ export default function PricingPage() {
     } catch (error) {
       console.error('Error adding modifier:', error)
       alert('Error adding modifier')
+    }
+  }
+
+  const handleUpdateMainModifier = async (id: number, newPct: number) => {
+    try {
+      const { error } = await supabase
+        .from('main_modifiers')
+        .update({ pct: newPct })
+        .eq('id', id)
+
+      if (error) throw error
+
+      setMainModifiers(prev => 
+        prev.map(mod => mod.id === id ? { ...mod, pct: newPct } : mod)
+      )
+      setEditingMainModifier(null)
+      setEditingValue('')
+    } catch (error) {
+      console.error('Error updating main modifier:', error)
+      alert('Error updating main modifier')
     }
   }
 
@@ -251,6 +292,16 @@ export default function PricingPage() {
             }`}
           >
             Modifiers ({modifiers.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('main-modifiers')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'main-modifiers'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Main Modifiers ({mainModifiers.length})
           </button>
         </nav>
       </div>
@@ -562,6 +613,99 @@ export default function PricingPage() {
                         >
                           Delete
                         </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Modifiers Tab */}
+      {activeTab === 'main-modifiers' && (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Main Modifiers</h2>
+            <p className="text-gray-600">Business type pricing adjustments applied to entire estimates</p>
+          </div>
+
+          <div className="card">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Percentage</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {mainModifiers.map((modifier) => (
+                    <tr key={modifier.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900">{modifier.name}</div>
+                        {modifier.name === 'Residential' && (
+                          <div className="text-sm text-gray-500">Default</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {editingMainModifier === modifier.id ? (
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="number"
+                              step="0.01"
+                              className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                              value={editingValue}
+                              onChange={(e) => setEditingValue(e.target.value)}
+                              autoFocus
+                            />
+                            <span className="text-sm text-gray-500">%</span>
+                          </div>
+                        ) : (
+                          <span className={`font-medium ${
+                            modifier.pct >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {modifier.pct > 0 ? '+' : ''}{(modifier.pct * 100).toFixed(1)}%
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {editingMainModifier === modifier.id ? (
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => {
+                                const newPct = parseFloat(editingValue) / 100
+                                if (!isNaN(newPct)) {
+                                  handleUpdateMainModifier(modifier.id, newPct)
+                                }
+                              }}
+                              className="text-green-600 hover:text-green-900"
+                            >
+                              Save
+                            </button>
+                            <button
+                              onClick={() => {
+                                setEditingMainModifier(null)
+                                setEditingValue('')
+                              }}
+                              className="text-gray-600 hover:text-gray-900"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingMainModifier(modifier.id)
+                              setEditingValue((modifier.pct * 100).toString())
+                            }}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            Edit
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
