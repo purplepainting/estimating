@@ -93,10 +93,6 @@ export default function ProposalTab({
   const [sowText, setSowText] = useState('')
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchData()
-  }, [])
-
   const fetchData = async () => {
     try {
       const [modifiersRes, priceItemsRes] = await Promise.all([

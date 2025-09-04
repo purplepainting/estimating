@@ -75,10 +75,6 @@ export default function PricingTab({
   const [modifiers, setModifiers] = useState<Modifier[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchModifiers()
-  }, [])
-
   const fetchModifiers = async () => {
     try {
       const { data, error } = await supabase
