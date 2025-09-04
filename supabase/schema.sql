@@ -111,3 +111,14 @@ CREATE INDEX idx_estimate_lines_estimate_id ON estimate_lines(estimate_id);
 CREATE INDEX idx_price_items_category_enabled ON price_items(category, enabled);
 CREATE INDEX idx_modifiers_item_id ON modifiers(item_id);
 CREATE INDEX idx_modifiers_category ON modifiers(category);
+
+-- Disable RLS for all tables (no authentication required)
+ALTER TABLE estimates DISABLE ROW LEVEL SECURITY;
+ALTER TABLE areas DISABLE ROW LEVEL SECURITY;
+ALTER TABLE exterior_measures DISABLE ROW LEVEL SECURITY;
+ALTER TABLE elevations DISABLE ROW LEVEL SECURITY;
+ALTER TABLE cabinet_groups DISABLE ROW LEVEL SECURITY;
+ALTER TABLE price_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE modifiers DISABLE ROW LEVEL SECURITY;
+ALTER TABLE estimate_lines DISABLE ROW LEVEL SECURITY;
+ALTER TABLE line_modifiers DISABLE ROW LEVEL SECURITY;
