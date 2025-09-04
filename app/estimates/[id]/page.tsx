@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useParams } from 'next/navigation'
+import InfoTab from '@/components/estimate/InfoTab'
+import InteriorTab from '@/components/estimate/InteriorTab'
 
 // Types
 interface Estimate {
@@ -313,15 +315,7 @@ export default function EstimateEditorPage() {
   )
 }
 
-// Placeholder components - I'll implement these next
-function InfoTab({ estimate, setEstimate, estimateId }: any) {
-  return <div className="card">Info tab content will go here</div>
-}
-
-function InteriorTab({ areas, setAreas, estimateLines, setEstimateLines, priceItems, estimateId }: any) {
-  return <div className="card">Interior tab content will go here</div>
-}
-
+// Placeholder components for remaining tabs
 function ExteriorTab({ exteriorMode, setExteriorMode, exteriorMeasure, setExteriorMeasure, elevations, setElevations, estimateLines, setEstimateLines, priceItems, estimateId }: any) {
   return <div className="card">Exterior tab content will go here</div>
 }
