@@ -40,6 +40,8 @@ interface EstimateLine {
 
 interface Modifier {
   id: number
+  item_id?: number
+  category?: 'interior' | 'exterior' | 'cabinets'
   label: string
   pct: number
 }
