@@ -40,6 +40,7 @@ export default function PricingPage() {
   const [showAddModifierForm, setShowAddModifierForm] = useState(false)
   const [editingMainModifier, setEditingMainModifier] = useState<number | null>(null)
   const [editingValue, setEditingValue] = useState<string>('')
+  const [editingItem, setEditingItem] = useState<PriceItem | null>(null)
 
   const [newItem, setNewItem] = useState({
     name: '',
@@ -127,6 +128,36 @@ export default function PricingPage() {
     } catch (error) {
       console.error('Error adding item:', error)
       alert('Error adding item')
+    }
+  }
+
+  const handleEditItem = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingItem) return
+
+    try {
+      const { error } = await supabase
+        .from('price_items')
+        .update({
+          name: editingItem.name,
+          category: editingItem.category,
+          substrate: editingItem.substrate,
+          uom: editingItem.uom,
+          rate: editingItem.rate,
+          enabled: editingItem.enabled,
+          prep_finish_text: editingItem.prep_finish_text
+        })
+        .eq('id', editingItem.id)
+
+      if (error) throw error
+
+      setPriceItems(prev => prev.map(item => 
+        item.id === editingItem.id ? editingItem : item
+      ))
+      setEditingItem(null)
+    } catch (error) {
+      console.error('Error updating item:', error)
+      alert('Error updating item')
     }
   }
 
@@ -423,6 +454,110 @@ export default function PricingPage() {
             </form>
           )}
 
+          {/* Edit Item Form */}
+          {editingItem && (
+            <form onSubmit={handleEditItem} className="card space-y-4">
+              <h3 className="text-lg font-medium">Edit Price Item</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={editingItem.name}
+                    onChange={(e) => setEditingItem(prev => prev ? { ...prev, name: e.target.value } : null)}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+                  <select
+                    className="input"
+                    value={editingItem.category}
+                    onChange={(e) => setEditingItem(prev => prev ? { ...prev, category: e.target.value as any } : null)}
+                  >
+                    <option value="interior">Interior</option>
+                    <option value="exterior">Exterior</option>
+                    <option value="cabinets">Cabinets</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Substrate *</label>
+                  <select
+                    className="input"
+                    value={editingItem.substrate}
+                    onChange={(e) => setEditingItem(prev => prev ? { ...prev, substrate: e.target.value as any } : null)}
+                  >
+                    <option value="drywall">Drywall</option>
+                    <option value="wood">Wood</option>
+                    <option value="metal">Metal</option>
+                    <option value="stucco_masonry">Stucco/Masonry</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">UOM *</label>
+                  <select
+                    className="input"
+                    value={editingItem.uom}
+                    onChange={(e) => setEditingItem(prev => prev ? { ...prev, uom: e.target.value as any } : null)}
+                  >
+                    <option value="sf">SF (Square Feet)</option>
+                    <option value="lf">LF (Linear Feet)</option>
+                    <option value="each">EACH</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Rate *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="input"
+                    value={editingItem.rate}
+                    onChange={(e) => setEditingItem(prev => prev ? { ...prev, rate: parseFloat(e.target.value) || 0 } : null)}
+                    required
+                  />
+                </div>
+                
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="editEnabled"
+                    checked={editingItem.enabled}
+                    onChange={(e) => setEditingItem(prev => prev ? { ...prev, enabled: e.target.checked } : null)}
+                    className="mr-2"
+                  />
+                  <label htmlFor="editEnabled" className="text-sm font-medium text-gray-700">Enabled</label>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Prep/Finish Text</label>
+                <textarea
+                  className="input h-20"
+                  value={editingItem.prep_finish_text || ''}
+                  onChange={(e) => setEditingItem(prev => prev ? { ...prev, prep_finish_text: e.target.value } : null)}
+                  placeholder="Text for proposals only..."
+                />
+              </div>
+              
+              <div className="flex gap-4">
+                <button type="submit" className="btn-primary">Save Changes</button>
+                <button 
+                  type="button" 
+                  onClick={() => setEditingItem(null)}
+                  className="btn-secondary"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
           {/* Items Table */}
           <div className="card">
             <div className="overflow-x-auto">
@@ -469,12 +604,20 @@ export default function PricingPage() {
                         </button>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <button
-                          onClick={() => deleteItem(item.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
+                        <div className="flex space-x-3">
+                          <button
+                            onClick={() => setEditingItem({ ...item })}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => deleteItem(item.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
