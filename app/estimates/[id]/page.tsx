@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useParams } from 'next/navigation'
 import InfoTab from '@/components/estimate/InfoTab'
-import InteriorTab from '@/components/estimate/InteriorTab'
+import TestTab from '@/components/estimate/TestTab'
 import ExteriorTab from '@/components/estimate/ExteriorTab'
 import CabinetsTab from '@/components/estimate/CabinetsTab'
 import PricingTab from '@/components/estimate/PricingTab'
@@ -259,14 +259,7 @@ export default function EstimateEditorPage() {
         )}
         
         {activeTab === 'interior' && (
-          <InteriorTab 
-            areas={areas}
-            setAreas={setAreas}
-            estimateLines={estimateLines}
-            setEstimateLines={setEstimateLines}
-            priceItems={priceItems.filter(item => item.category === 'interior')}
-            estimateId={estimateId}
-          />
+          <TestTab />
         )}
         
         {activeTab === 'exterior' && (
