@@ -97,10 +97,6 @@ export default function ExteriorTab({
     fascia_ln_ft: 0
   })
 
-  useEffect(() => {
-    fetchModifiers()
-  }, [])
-
   const fetchModifiers = async () => {
     const { data, error } = await supabase
       .from('modifiers')
@@ -109,6 +105,10 @@ export default function ExteriorTab({
     
     if (!error) setModifiers(data || [])
   }
+
+  useEffect(() => {
+    fetchModifiers()
+  }, [])
 
   const savePerimeterMeasure = async () => {
     try {

@@ -73,11 +73,6 @@ export default function InteriorTab({
   })
   const [modifiers, setModifiers] = useState<Modifier[]>([])
 
-  // Fetch modifiers when component mounts
-  useEffect(() => {
-    fetchModifiers()
-  }, [])
-
   const fetchModifiers = async () => {
     const { data, error } = await supabase
       .from('modifiers')
@@ -86,6 +81,11 @@ export default function InteriorTab({
     
     if (!error) setModifiers(data || [])
   }
+
+  // Fetch modifiers when component mounts
+  useEffect(() => {
+    fetchModifiers()
+  }, [])
 
   const handleAddArea = async (e: React.FormEvent) => {
     e.preventDefault()

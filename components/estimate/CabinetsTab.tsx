@@ -65,10 +65,6 @@ export default function CabinetsTab({
   const [newGroup, setNewGroup] = useState({ name: '' })
   const [modifiers, setModifiers] = useState<Modifier[]>([])
 
-  useEffect(() => {
-    fetchModifiers()
-  }, [])
-
   const fetchModifiers = async () => {
     const { data, error } = await supabase
       .from('modifiers')
@@ -77,6 +73,10 @@ export default function CabinetsTab({
     
     if (!error) setModifiers(data || [])
   }
+
+  useEffect(() => {
+    fetchModifiers()
+  }, [])
 
   const handleAddGroup = async (e: React.FormEvent) => {
     e.preventDefault()
